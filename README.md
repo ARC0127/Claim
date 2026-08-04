@@ -2,7 +2,7 @@
 
 > 让 AI 不再替你“完成理论”，把“这篇论文究竟需要证明什么”的判断过程交还给研究者。
 
-![Internal Version](https://img.shields.io/badge/internal%20version-0.1-6f42c1)
+![Internal Version](https://img.shields.io/badge/internal%20version-0.1.1-6f42c1)
 ![Codex Skill](https://img.shields.io/badge/Codex%20Skill-Claim-0a7ea4)
 
 Claim 是一个面向科研对话的 Codex skill。它从研究者亲自提出的论文主张出发，用数学形式化、反例、假设选择、定理义务和失败条件，把一个“听起来合理”的想法组织成边界更清楚、可以逐项检查的理论任务。
@@ -77,7 +77,7 @@ $claimSkillsRoot = if ($env:CODEX_HOME) {
     Join-Path $env:USERPROFILE ".codex\skills"
 }
 
-Expand-Archive -LiteralPath ".\dist\Claim-0.1.zip" `
+Expand-Archive -LiteralPath ".\dist\Claim-0.1.1.zip" `
     -DestinationPath $claimSkillsRoot
 ```
 
@@ -85,7 +85,7 @@ macOS 或 Linux：
 
 ```bash
 claim_skills_root="${CODEX_HOME:-$HOME/.codex}/skills"
-unzip dist/Claim-0.1.zip -d "$claim_skills_root"
+unzip dist/Claim-0.1.1.zip -d "$claim_skills_root"
 ```
 
 安装完成后，应当存在：
@@ -177,7 +177,47 @@ flowchart TD
 | S6 失败 | 说明什么反例或结果会改变结论 | 检查规则能否真正证伪主张 | 存在可观察、非循环的失败规则 |
 | S7 归档 | 明确要求生成正式材料 | 整理已确认的主张、DAG 和定理路线 | S1–S6 已通过 |
 
-每个普通 coaching 回合只推进一个决定，并只留下一个需要用户亲自回答的问题。这项限制用来防止 AI 在一个回合中同时给出反例、修复假设、定理和实验方案。
+### 统一输出格式
+
+S1–S6 的每个 Coaching 回合都必须逐字使用以下四个编号标题。不得改名、翻译、重新编号，也不得在第一个标题前增加开场段落：
+
+```markdown
+1. **你刚才表达了什么**
+2. **我如何形式化**
+3. **当前最大歧义**
+4. **一个需要你亲自回答的问题**
+```
+
+第一部分必须按照“阶段、模式、检索、可选版本”的顺序给出状态：
+
+```markdown
+`阶段 S1 · GATE OPEN`
+`模式：STANDARD`
+`检索：NO_NEW_SCIENTIFIC_CONTENT`
+```
+
+固定规则如下：
+
+- 阶段只允许 `S1`、`S2`、`S3`、`S4`、`S5a`、`S5b` 或 `S6`；
+- gate 只允许 `OPEN` 或 `PASSED`；`PASSED` 只允许出现在用户决定确实通过当前阶段的 `STANDARD` 回合，`DEEP_DIVE` 与 `EVIDENCE_CHALLENGE` 始终使用 `OPEN`；
+- 模式只允许 `STANDARD`、`DEEP_DIVE · NO ADVANCE` 或 `EVIDENCE_CHALLENGE · NO ADVANCE`；
+- 检索只允许 `NO_NEW_SCIENTIFIC_CONTENT`、`FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED` 或 `EVIDENCE_CHALLENGE · WEB SEARCH REQUIRED`；
+- `DEEP_DIVE` 和 fresh literature 可以同时出现，分别占据模式行与检索行；
+- `EVIDENCE_CHALLENGE` 优先级最高，它覆盖 `DEEP_DIVE`，并且它的网页搜索同时满足 fresh literature 要求；
+- 只有第四部分可以出现问句，并且必须恰好有一个需要用户亲自回答的问题；
+- 版本发生变化时，检索行之后才增加 `` `版本：Claim vN · ACTIVE · INVALIDATED <gate-list>` ``；没有版本变化就不输出版本行。
+
+例如，用户在 S1 引入新科学内容并要求深入解释时，唯一合法的状态组合是：
+
+```markdown
+1. **你刚才表达了什么**
+
+`阶段 S1 · GATE OPEN`
+`模式：DEEP_DIVE · NO ADVANCE`
+`检索：FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED`
+```
+
+其余三个编号标题仍必须继续输出。每个回合只推进一个决定，并只留下一个需要用户亲自回答的问题。这项限制用来防止 AI 在一个回合中同时给出反例、修复假设、定理和实验方案。
 
 ## 它怎样进行深入教学
 
@@ -276,6 +316,7 @@ Claim/
 │       └── theory-coach.md
 └── dist/
     ├── Claim-0.1.zip
+    ├── Claim-0.1.1.zip
     └── SHA256SUMS.txt
 ```
 
@@ -292,7 +333,7 @@ Claim/
 
 ## 哪些能力需要可选依赖
 
-Claim 可以把交付型任务路由到其他已安装 skills。以下能力不是 `Claim-0.1.zip` 的内置内容：
+Claim 可以把交付型任务路由到其他已安装 skills。以下能力不是 `Claim-0.1.1.zip` 的内置内容：
 
 | 任务 | 可选 skill |
 |---|---|
@@ -308,9 +349,9 @@ Claim 可以把交付型任务路由到其他已安装 skills。以下能力不�
 
 如果可选依赖不存在，Claim 不应假装相应的完整审计已经完成。核心 Coaching 功能仍然可以使用。
 
-## 版本 0.1：已经验证什么
+## 版本 0.1.1：已经验证什么
 
-内部版本 `0.1` 已完成以下结构验证：
+内部版本 `0.1.1` 在 0.1 的基础上统一了 Coaching 的逐字标题、状态行语法、模式组合和优先级，并完成以下结构验证：
 
 - skill frontmatter 和目录结构可以通过 validator；
 - 仓库文本可以严格按 UTF-8 解码；
@@ -326,20 +367,20 @@ Claim 可以把交付型任务路由到其他已安装 skills。以下能力不�
 - AI 给出的文献判断或数学判断必然正确；
 - 外部可选 skills 已随压缩包安装。
 
-当前更准确的状态是：Claim 0.1 已形成可安装、可检查的核心协议，但广泛的跨领域教学效果仍是 `UNKNOWN`，需要后续回归测试和真实使用证据。
+当前更准确的状态是：Claim 0.1.1 已形成可安装、可检查且输出格式可机械核对的核心协议，但广泛的跨领域教学效果仍是 `UNKNOWN`，需要后续回归测试和真实使用证据。
 
 ## 校验发行包
 
 仓库中的 `dist/SHA256SUMS.txt` 记录了核心文件与 ZIP 的 SHA-256。PowerShell 示例：
 
 ```powershell
-Get-FileHash -LiteralPath ".\dist\Claim-0.1.zip" -Algorithm SHA256
+Get-FileHash -LiteralPath ".\dist\Claim-0.1.1.zip" -Algorithm SHA256
 ```
 
-版本 0.1 的 ZIP 期望值为：
+版本 0.1.1 的 ZIP 期望值为：
 
 ```text
-210e37bcc8d5d72fd5e0ccee9d9c0f4a988bfbd792c9d65400e8938e631bb124
+bc127d8af6588d541aaaeaf89fa4c570066c2f3d1627df186a05e025bb91e389
 ```
 
 ## 适用范围
@@ -373,7 +414,7 @@ Claim 不能替代：
 
 ## License
 
-内部版本 0.1 暂未附带开源许可证。项目公开可见不等于自动授予复制、修改或再分发权利；正式公开发布前，应由项目所有者选择并加入明确许可证。
+内部版本 0.1.1 暂未附带开源许可证。项目公开可见不等于自动授予复制、修改或再分发权利；正式公开发布前，应由项目所有者选择并加入明确许可证。
 
 ---
 

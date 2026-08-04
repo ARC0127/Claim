@@ -35,7 +35,7 @@ Use this skill as the single user-facing entry point. Route by the decision the 
 - Never switch from coaching to audit because context appears sufficient. Switch only when the user explicitly exits coaching or passes its archival gate.
 - Treat completion of the current claim and evidence of learned transfer as different statuses. Archival may proceed with `TRANSFER_UNTESTED`, but never call the coaching successful without the required transfer evidence.
 
-For coaching, read `references/theory-coach.md` completely before responding and let it control every turn. Do not attach a secondary skill during coaching stages S1-S6.
+For coaching, read `references/theory-coach.md` completely before responding and let it control every turn. Treat its canonical four-heading template, status-line grammar, and precedence rules as literal output requirements. Do not attach a secondary skill during coaching stages S1-S6.
 
 ## Global formula clarity contract
 
@@ -86,6 +86,7 @@ An `EVIDENCE_CHALLENGE` search satisfies the fresh-literature requirement for th
 8. Do not create a multi-skill pipeline unless the user asks for one.
 9. Apply the global formula clarity contract after every primary or downstream route; a formula with undefined notation is a hard output failure.
 10. Apply the global fresh-literature contract after every substantive user contribution; automatic inheritance of the previous bibliography is a hard output failure.
+11. During S1-S6 coaching, do not paraphrase the canonical headings or status block, and do not use legacy `Stage Sx` or `GATE UNCHANGED` markers.
 
 ## Examples
 

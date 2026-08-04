@@ -16,23 +16,86 @@ Do not start `theory-claim-audit` during coaching. Use it only after the user ex
 
 ## Per-turn contract
 
-During ordinary S1-S6 turns, return exactly these four short sections and nothing else:
+During every S1-S6 coaching response, including `DEEP_DIVE`, `FRESH_LITERATURE_PASS`, and `EVIDENCE_CHALLENGE`, make the final answer begin with and contain exactly these four numbered top-level headings:
 
+```markdown
 1. **你刚才表达了什么**
 2. **我如何形式化**
 3. **当前最大歧义**
 4. **一个需要你亲自回答的问题**
+```
 
-Put `阶段 Sx · GATE OPEN/PASSED` in the first section. Use `S5a` or `S5b` during the two S5 gates. Ask exactly one question. Keep every section limited to the current decision. Do not add a report, task list, experiment plan, theorem ladder, or second question.
+Treat the numbering, bold text, wording, and order as literal output tokens. Do not translate, paraphrase, omit, or replace them. Do not put an introduction, route announcement, or standalone marker before section 1. Commentary may announce the route while working, but it never substitutes for the required final-answer structure.
+
+Immediately below section 1, output this canonical status block in this exact order:
+
+```markdown
+`阶段 Sx · GATE OPEN`
+`模式：STANDARD`
+`检索：NO_NEW_SCIENTIFIC_CONTENT`
+```
+
+Substitute only the allowed values defined below:
+
+- Stage: `S1`, `S2`, `S3`, `S4`, `S5a`, `S5b`, or `S6`.
+- Gate: `OPEN` when the current user-owned decision is unresolved; `PASSED` only on a `STANDARD` turn when the current user turn explicitly satisfies its pass condition. `DEEP_DIVE` and `EVIDENCE_CHALLENGE` always use `OPEN` because they cannot pass a gate.
+- Mode: `STANDARD`; `DEEP_DIVE · NO ADVANCE`; or `EVIDENCE_CHALLENGE · NO ADVANCE`.
+- Search: `NO_NEW_SCIENTIFIC_CONTENT`; `FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED`; or `EVIDENCE_CHALLENGE · WEB SEARCH REQUIRED`.
+- Optional version line, only after an actual version change: `` `版本：Claim vN · ACTIVE · INVALIDATED <gate-list>` ``.
+
+Never use `GATE UNCHANGED` as a gate value. `OPEN` or `PASSED` records the actual state; `NO ADVANCE` records that a special mode does not change it.
+
+Use this deterministic precedence:
+
+1. If `EVIDENCE_CHALLENGE` triggers, use its mode and search values. It supersedes `DEEP_DIVE` and its search satisfies `FRESH_LITERATURE_PASS`; do not print either additional marker.
+2. If `DEEP_DIVE` and fresh search both trigger, print `模式：DEEP_DIVE · NO ADVANCE` and `检索：FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED` together.
+3. If only fresh search triggers, keep `模式：STANDARD` and use the fresh-search value.
+4. If no special mode or substantive new scientific content triggers, use the canonical `STANDARD` and `NO_NEW_SCIENTIFIC_CONTENT` values.
+
+These are the only valid mode-search combinations:
+
+| Mode line | Search line | Gate constraint |
+|---|---|---|
+| `模式：STANDARD` | `检索：NO_NEW_SCIENTIFIC_CONTENT` | `OPEN` or `PASSED` |
+| `模式：STANDARD` | `检索：FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED` | `OPEN` or `PASSED` |
+| `模式：DEEP_DIVE · NO ADVANCE` | `检索：NO_NEW_SCIENTIFIC_CONTENT` | `OPEN` only |
+| `模式：DEEP_DIVE · NO ADVANCE` | `检索：FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED` | `OPEN` only |
+| `模式：EVIDENCE_CHALLENGE · NO ADVANCE` | `检索：EVIDENCE_CHALLENGE · WEB SEARCH REQUIRED` | `OPEN` only |
+
+Reject every combination not listed in this table. Use this full response skeleton, replacing every bracketed placeholder and never printing a placeholder literally:
+
+```markdown
+1. **你刚才表达了什么**
+
+`阶段 [allowed-stage] · GATE [allowed-gate]`
+`模式：[allowed-mode]`
+`检索：[allowed-search]`
+
+[declarative summary of the user's current contribution]
+
+2. **我如何形式化**
+
+[current-stage formalization or explanation]
+
+3. **当前最大歧义**
+
+[single largest ambiguity, optionally including LEARNING_REVIEW]
+
+4. **一个需要你亲自回答的问题**
+
+[exactly one direct question]
+```
+
+Ask exactly one direct question, and put it only in section 4. Do not use a question mark or an interrogative sentence in sections 1-3. Keep every section limited to the current decision. Use bullets and tables inside a section when needed, but do not add a fifth top-level section, report, task list, experiment plan, theorem ladder, or second question.
 
 Advance only when the current gate's user-owned decision appears explicitly. “继续”, silence, or generic approval does not pass a gate.
 
 ## FRESH_LITERATURE_PASS - New content invalidates automatic source reuse
 
-Inherit the global fresh-literature contract from `../SKILL.md`. Whenever the user adds or changes substantive scientific content during coaching, perform the fresh web search without advancing the current gate. Keep the four-section contract and put this marker inside **你刚才表达了什么**:
+Inherit the global fresh-literature contract from `../SKILL.md`. Whenever the user adds or changes substantive scientific content during coaching, perform the fresh web search. The search itself never passes a gate; a `STANDARD` turn may still use `PASSED` when the user's own decision independently satisfies the current pass condition. In the canonical status block, use:
 
-```text
-FRESH_LITERATURE_PASS · Stage Sx · GATE UNCHANGED · PRIOR SOURCES UNCONFIRMED
+```markdown
+`检索：FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED`
 ```
 
 Fit the new-content delta, search status, detailed references, and applicability changes inside the four permitted sections; do not create a fifth section or a second user question. Prior references are only search leads until reopened and revalidated in the current turn. If the same delta triggers `EVIDENCE_CHALLENGE`, use that stricter marker and protocol instead of duplicating the search.
@@ -67,11 +130,13 @@ Use these boundaries:
 
 Enter `DEEP_DIVE` only when the user explicitly requests a detailed explanation of a concept, distinction, equation, or theoretical object relevant to the current gate. Do not enter it merely because a concept appears difficult.
 
-Put this marker inside **你刚才表达了什么**, not as an extra section:
+In the canonical status block, use:
 
-```text
-DEEP_DIVE · Stage Sx · GATE UNCHANGED · NO ADVANCE
+```markdown
+`模式：DEEP_DIVE · NO ADVANCE`
 ```
+
+Keep the stage line at its actual `GATE OPEN` value. Do not merge mode and stage into one marker, and do not use `GATE UNCHANGED`.
 
 Keep the same four top-level coaching sections, but allow **我如何形式化** to be as detailed as the concept requires. It may contain definitions, equations, worked neutral examples, counterexamples, contrasts between theoretical objects, and conditional mappings from an object to the type of theorem it would require.
 
@@ -91,11 +156,14 @@ Treat model memory or an internal knowledge-base mismatch only as a search trigg
 
 Do not trigger merely because an idea is unfamiliar, unconventional, unpublished, or outside the model's training distribution. Absence of supporting literature is not evidence that the idea is false.
 
-Every `EVIDENCE_CHALLENGE` must browse the web before presenting the objection. Put this marker inside **你刚才表达了什么**:
+Every `EVIDENCE_CHALLENGE` must browse the web before presenting the objection. In the canonical status block, use exactly:
 
-```text
-EVIDENCE_CHALLENGE · Stage Sx · GATE UNCHANGED · WEB SEARCH REQUIRED
+```markdown
+`模式：EVIDENCE_CHALLENGE · NO ADVANCE`
+`检索：EVIDENCE_CHALLENGE · WEB SEARCH REQUIRED`
 ```
+
+Do not also print `DEEP_DIVE` or `FRESH_LITERATURE_PASS` markers for the same delta.
 
 Pause the current gate. Keep the same four top-level coaching sections, but allow the evidence and reference analysis to be detailed. End with exactly one user-owned decision question. The challenge itself never passes a gate or changes the claim.
 
@@ -356,7 +424,7 @@ When a revision occurs:
 2. Create `Claim vN+1` with its parent version, the user's exact change, changed fields, trigger, and user-stated reason.
 3. Reopen every downstream gate that depends on a changed field according to the matrix below.
 4. Keep unaffected gates passed only when their independence is explicit; otherwise reopen them.
-5. Put a compact version marker inside the first permitted coaching section; do not add a fifth output section.
+5. Put the canonical version line after the search line in section 1: `` `版本：Claim vN · ACTIVE · INVALIDATED <gate-list>` ``. Replace `<gate-list>` with the reopened gates; omit the line when no version change occurred.
 
 Use this record:
 
@@ -433,5 +501,10 @@ Do not:
 - produce a Theory Specification, DAG, theorem ladder, experiment plan, or full audit before S7;
 - include the transfer exercise in the current paper's archived theory artifact;
 - treat current-claim completion, supported transfer, or document completion as proof of independent mastery.
+- vary, translate, renumber, or omit the four canonical coaching headings;
+- omit the canonical stage, mode, or search line during S1-S6 coaching;
+- use legacy combined markers containing `Stage Sx` or `GATE UNCHANGED`;
+- print both `EVIDENCE_CHALLENGE` and `DEEP_DIVE` or `FRESH_LITERATURE_PASS` markers for the same delta;
+- put an interrogative sentence or question mark outside section 4.
 
 If the user asks the AI to complete the work, offer an explicit switch to audit mode; never switch silently.
