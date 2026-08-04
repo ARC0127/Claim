@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claim"
+  short_description: "Coaches and audits research claims with gated workflows"
+  default_prompt: "Use $claim to choose guided claim-to-theorem coaching or a completed claim audit."

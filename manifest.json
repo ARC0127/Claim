@@ -1,0 +1,16 @@
+{
+  "project": "Claim",
+  "skill_name": "claim",
+  "internal_version": "0.1",
+  "release_channel": "internal",
+  "release_date": "2026-08-04",
+  "entrypoint": "claim/SKILL.md",
+  "archive": "dist/Claim-0.1.zip",
+  "archive_layout": "claim/",
+  "core_files": [
+    "claim/SKILL.md",
+    "claim/agents/openai.yaml",
+    "claim/references/theory-coach.md"
+  ],
+  "notes": "Optional audit and proof routes require the downstream skills named in README.md."
+}

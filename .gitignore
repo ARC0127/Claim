@@ -1,0 +1,9 @@
+# Temporary packaging and validation directories
+.tmp/
+tmp/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp

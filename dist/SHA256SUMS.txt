@@ -1,0 +1,4 @@
+5f3debd386b8b5b80afeb7ce80a4ee651c98554c76037bfff75208d479bee166  claim/SKILL.md
+ca94916dc8e936c0b2f4ea201b04b9cccd6ceedf9f8a2c3bcb1c7c4590a0ea52  claim/agents/openai.yaml
+e75881a28115f76ff05adbb98920b48532cb45316015bd330c60058628647e7d  claim/references/theory-coach.md
+210e37bcc8d5d72fd5e0ccee9d9c0f4a988bfbd792c9d65400e8938e631bb124  dist/Claim-0.1.zip
