@@ -312,6 +312,8 @@ Claim/
 ├── README.md
 ├── VERSION
 ├── manifest.json
+├── tools/
+│   └── validate-encoding.ps1
 ├── claim/
 │   ├── SKILL.md
 │   ├── agents/
@@ -373,9 +375,64 @@ Claim 可以把交付型任务路由到其他已安装 skills。以下能力依�
 
 Claim 0.1.1 当前具备可安装的核心协议和可机械核对的输出格式。跨领域教学效果仍是 `UNKNOWN`，需要回归测试和真实使用证据。
 
+## Windows 中文编码契约
+
+仓库内的 Markdown、YAML、JSON、TXT 和 `VERSION` 统一使用无 BOM 的 UTF-8。`.gitattributes` 固定了文本编码与换行策略。这能防止新提交把中文保存成 GBK 或 CP936，但不能替命令行工具选择解码方式。
+
+Windows PowerShell 5.1 在中文 Windows 上会按系统代码页读取无 BOM 文件。因此，以下命令可能把正确的 UTF-8 中文显示成乱码：
+
+```powershell
+# 错误示例：Windows PowerShell 5.1 会隐式使用系统代码页
+Get-Content -LiteralPath ".\claim\SKILL.md"
+```
+
+读取文件时必须显式指定 UTF-8：
+
+```powershell
+Get-Content -LiteralPath ".\claim\SKILL.md" -Encoding UTF8
+Get-Content -LiteralPath ".\claim\references\theory-coach.md" -Encoding UTF8
+```
+
+Python 在 CP936 环境中运行文本检查器时，也必须显式启用 UTF-8 模式：
+
+```powershell
+$claimCodexHome = if ($env:CODEX_HOME) {
+    $env:CODEX_HOME
+} else {
+    Join-Path $env:USERPROFILE ".codex"
+}
+
+py -3 -X utf8 `
+    (Join-Path $claimCodexHome "skills\.system\skill-creator\scripts\quick_validate.py") `
+    ".\claim"
+```
+
+只修改终端代码页不足以保证 `Get-Content` 或 Python 按 UTF-8 解码。应当在每个读取边界显式声明编码。
+
 ## 校验发行包
 
-仓库中的 `dist/SHA256SUMS.txt` 记录了核心文件与 ZIP 的 SHA-256。PowerShell 示例：
+仓库中的 `tools/validate-encoding.ps1` 对编码链路做闭环检查。它会：
+
+- 严格解码所有已跟踪文本，拒绝 BOM、非法 UTF-8、替换字符和已知乱码片段；
+- 检查中文路由词、四个 Coaching 标题和公式符号表字段是否仍然完整；
+- 核对 `dist/SHA256SUMS.txt`、当前发行 ZIP 与仓库核心文件的 SHA-256；
+- 在可用时，用 UTF-8 模式运行 skill validator，并核对已安装的 `claim` 副本。
+
+在仓库根目录运行：
+
+```powershell
+.\tools\validate-encoding.ps1
+```
+
+如果 skill validator 或已安装副本不在默认的 `$env:CODEX_HOME` 下，可以显式传入路径：
+
+```powershell
+.\tools\validate-encoding.ps1 `
+    -ValidatorPath "D:\codex\home\skills\.system\skill-creator\scripts\quick_validate.py" `
+    -InstalledSkillPath "D:\codex\home\skills\claim"
+```
+
+`dist/SHA256SUMS.txt` 记录了核心文件与 ZIP 的 SHA-256。单独核对 ZIP 时可以运行：
 
 ```powershell
 Get-FileHash -LiteralPath ".\dist\Claim-0.1.1.zip" -Algorithm SHA256
