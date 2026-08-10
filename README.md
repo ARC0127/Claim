@@ -393,7 +393,14 @@ Get-Content -LiteralPath ".\claim\SKILL.md" -Encoding UTF8
 Get-Content -LiteralPath ".\claim\references\theory-coach.md" -Encoding UTF8
 ```
 
-Python 在 CP936 环境中运行文本检查器时，也必须显式启用 UTF-8 模式：
+Python 读写 skill 文件的入口必须在源码中显式声明 UTF-8。当地 `skill-creator` 的关键调用应当是：
+
+```python
+skill_md.read_text(encoding="utf-8")
+output_path.write_text(content, encoding="utf-8")
+```
+
+修复后，不需要 `-X utf8` 也必须能通过：
 
 ```powershell
 $claimCodexHome = if ($env:CODEX_HOME) {
@@ -402,12 +409,12 @@ $claimCodexHome = if ($env:CODEX_HOME) {
     Join-Path $env:USERPROFILE ".codex"
 }
 
-py -3 -X utf8 `
+py -3 `
     (Join-Path $claimCodexHome "skills\.system\skill-creator\scripts\quick_validate.py") `
     ".\claim"
 ```
 
-只修改终端代码页不足以保证 `Get-Content` 或 Python 按 UTF-8 解码。应当在每个读取边界显式声明编码。
+只修改终端代码页，或只在外层传入 `-X utf8`，都不能证明读写入口已修复。每个读写边界都应在源码中显式声明编码。`.system\skill-creator` 属于本地系统 skill，未包含在 Claim ZIP 中，系统更新后应重新运行本仓库的编码检查。
 
 ## 校验发行包
 
@@ -416,7 +423,8 @@ py -3 -X utf8 `
 - 严格解码所有已跟踪文本，拒绝 BOM、非法 UTF-8、替换字符和已知乱码片段；
 - 检查中文路由词、四个 Coaching 标题和公式符号表字段是否仍然完整；
 - 核对 `dist/SHA256SUMS.txt`、当前发行 ZIP 与仓库核心文件的 SHA-256；
-- 在可用时，用 UTF-8 模式运行 skill validator，并核对已安装的 `claim` 副本。
+- 在可用时，检查 `skill-creator` 的读写入口是否显式声明 UTF-8，再用默认 Python 运行 skill validator；
+- 核对已安装的 `claim` 副本是否与仓库核心文件一致。
 
 在仓库根目录运行：
 

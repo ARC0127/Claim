@@ -300,12 +300,44 @@ try {
         Write-Fail "Python launcher 'py' is not available"
     }
     else {
-        & py -3 -X utf8 $ValidatorPath (Join-Path $repoRoot "claim")
+        $creatorEncodingReady = $true
+        try {
+            $readEncodingPattern = 'read_text\(\s*encoding\s*=\s*["'']utf-8["'']\s*\)'
+            $writeEncodingPattern = 'output_path\.write_text\([\s\S]{0,200}?encoding\s*=\s*["'']utf-8["'']'
+
+            $validatorSource = (Read-StrictUtf8 $ValidatorPath).Text
+            if (-not [System.Text.RegularExpressions.Regex]::IsMatch($validatorSource, $readEncodingPattern)) {
+                throw "quick_validate.py does not declare UTF-8 when reading SKILL.md"
+            }
+
+            $generatorPath = Join-Path (Split-Path -Parent $ValidatorPath) "generate_openai_yaml.py"
+            if (-not (Test-Path -LiteralPath $generatorPath -PathType Leaf)) {
+                throw "generate_openai_yaml.py is missing beside the validator"
+            }
+
+            $generatorSource = (Read-StrictUtf8 $generatorPath).Text
+            if (-not [System.Text.RegularExpressions.Regex]::IsMatch($generatorSource, $readEncodingPattern)) {
+                throw "generate_openai_yaml.py does not declare UTF-8 when reading SKILL.md"
+            }
+            if (-not [System.Text.RegularExpressions.Regex]::IsMatch($generatorSource, $writeEncodingPattern)) {
+                throw "generate_openai_yaml.py does not declare UTF-8 when writing openai.yaml"
+            }
+        }
+        catch {
+            $creatorEncodingReady = $false
+            Write-Fail "skill-creator runtime encoding contract: $($_.Exception.Message)"
+        }
+
+        if ($creatorEncodingReady) {
+            Write-Pass "skill-creator readers and writer declare UTF-8 explicitly"
+        }
+
+        & py -3 $ValidatorPath (Join-Path $repoRoot "claim")
         if ($LASTEXITCODE -ne 0) {
-            Write-Fail "skill validator failed in UTF-8 mode"
+            Write-Fail "skill validator failed under the default Python runtime"
         }
         else {
-            Write-Pass "skill validator passed with Python UTF-8 mode"
+            Write-Pass "skill validator passed under the default Python runtime"
         }
     }
 
