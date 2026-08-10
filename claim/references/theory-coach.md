@@ -1,4 +1,14 @@
-# Theory Claim Coaching Protocol
+﻿# Theory Claim Coaching Protocol
+
+## Encoding preflight
+
+ENCODING_CONTRACT: UTF-8
+POWERSHELL_READ: Get-Content -LiteralPath path -Encoding UTF8
+PYTHON_READ: Path(path).read_text(encoding="utf-8-sig")
+MOJIBAKE_POLICY: FAIL_CLOSED_AND_REREAD
+CANONICAL_PREFIX_CODEPOINTS: STAGE=U+9636,U+6BB5; MODE=U+6A21,U+5F0F,U+FF1A; SEARCH=U+68C0,U+7D22,U+FF1A; SEPARATOR=U+00B7
+
+This reference carries a UTF-8 BOM for Windows PowerShell 5.1 compatibility. Run this preflight before using any Chinese literal in this protocol. If the decoded file contains `U+FFFD`, any private-use character in `U+E000-U+F8FF`, or status prefixes that do not match the listed code points, stop. Re-read this file explicitly as UTF-8. Do not emit text copied from the damaged decode, and do not reuse a mojibake template cached earlier in the conversation.
 
 ## Mission
 

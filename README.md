@@ -2,7 +2,7 @@
 
 > Claim 训练研究者从论文主张反推出定理义务，并要求关键判断由研究者先作答。
 
-![Internal Version](https://img.shields.io/badge/internal%20version-0.1.1-6f42c1)
+![Internal Version](https://img.shields.io/badge/internal%20version-0.1.2-6f42c1)
 ![Codex Skill](https://img.shields.io/badge/Codex%20Skill-Claim-0a7ea4)
 
 Claim 是一个用于科研对话的 Codex skill。它把研究者提出的论文主张拆成一组逐轮任务，依次检查数学形式、反例、假设、定理义务、理论类别和失败条件。
@@ -81,7 +81,7 @@ $claimSkillsRoot = if ($env:CODEX_HOME) {
     Join-Path $env:USERPROFILE ".codex\skills"
 }
 
-Expand-Archive -LiteralPath ".\dist\Claim-0.1.1.zip" `
+Expand-Archive -LiteralPath ".\dist\Claim-0.1.2.zip" `
     -DestinationPath $claimSkillsRoot
 ```
 
@@ -89,7 +89,7 @@ macOS 或 Linux：
 
 ```bash
 claim_skills_root="${CODEX_HOME:-$HOME/.codex}/skills"
-unzip dist/Claim-0.1.1.zip -d "$claim_skills_root"
+unzip dist/Claim-0.1.2.zip -d "$claim_skills_root"
 ```
 
 安装完成后，应当存在：
@@ -323,6 +323,7 @@ Claim/
 └── dist/
     ├── Claim-0.1.zip
     ├── Claim-0.1.1.zip
+    ├── Claim-0.1.2.zip
     └── SHA256SUMS.txt
 ```
 
@@ -339,7 +340,7 @@ Claim/
 
 ## 哪些能力需要可选依赖
 
-Claim 可以把交付型任务路由到其他已安装 skills。以下能力依赖外部 skills，不包含在 `Claim-0.1.1.zip` 中：
+Claim 可以把交付型任务路由到其他已安装 skills。以下能力依赖外部 skills，不包含在 `Claim-0.1.2.zip` 中：
 
 | 任务 | 可选 skill |
 |---|---|
@@ -355,13 +356,15 @@ Claim 可以把交付型任务路由到其他已安装 skills。以下能力依�
 
 如果可选依赖不存在，Claim 不应假装相应的完整审计已经完成。核心 Coaching 功能仍然可以使用。
 
-## 版本 0.1.1：已经验证什么
+## 版本 0.1.2：已经验证什么
 
-内部版本 `0.1.1` 在 0.1 的基础上统一了 Coaching 的逐字标题、状态行语法、模式组合和优先级，并完成以下结构验证：
+内部版本 `0.1.2` 在 0.1.1 的基础上增加了 Claim 运行时的失败关闭编码预检。该预检使用纯 ASCII 规则，即使中文已被错误解码，执行者仍能读到重新以 UTF-8 加载的强制要求。0.1.2 完成以下结构验证：
 
 - skill frontmatter 和目录结构可以通过 validator；
 - 仓库文本可以严格按 UTF-8 解码；
 - 已检查常见中文乱码模式；
+- Claim 入口和 coaching 参考文件都包含纯 ASCII 的 UTF-8 读取、乱码失败关闭和 Unicode 码点自检契约；
+- 阶段、模式、检索前缀与中点分隔符必须匹配预期 Unicode 码点；
 - 仓库 skill 与 ZIP 解压内容的逐文件 SHA-256 一致；
 - ZIP 解压后可以再次通过 skill validator；
 - 发布清单、版本号和文件路径一致。
@@ -373,11 +376,11 @@ Claim 可以把交付型任务路由到其他已安装 skills。以下能力依�
 - AI 给出的文献判断或数学判断必然正确；
 - 外部可选 skills 已随压缩包安装。
 
-Claim 0.1.1 当前具备可安装的核心协议和可机械核对的输出格式。跨领域教学效果仍是 `UNKNOWN`，需要回归测试和真实使用证据。
+Claim 0.1.2 当前具备可安装的核心协议、可机械核对的输出格式和乱码失败关闭预检。已经加载错误文本的旧对话仍需重新读取 skill；跨领域教学效果仍是 `UNKNOWN`。
 
 ## Windows 中文编码契约
 
-仓库内的 Markdown、YAML、JSON、TXT 和 `VERSION` 统一使用无 BOM 的 UTF-8。`.gitattributes` 固定了文本编码与换行策略。这能防止新提交把中文保存成 GBK 或 CP936，但不能替命令行工具选择解码方式。
+仓库文本统一使用 UTF-8。`SKILL.md`、YAML、JSON、TXT 和 `VERSION` 保持无 BOM；`claim/references/theory-coach.md` 特意保留 UTF-8 BOM，使 Windows PowerShell 5.1 的默认 `Get-Content` 也能正确识别中文。`.gitattributes` 固定文本编码与换行策略，编码校验器则强制检查逐文件 BOM 策略。
 
 Windows PowerShell 5.1 在中文 Windows 上会按系统代码页读取无 BOM 文件。因此，以下命令可能把正确的 UTF-8 中文显示成乱码：
 
@@ -420,7 +423,7 @@ py -3 `
 
 仓库中的 `tools/validate-encoding.ps1` 对编码链路做闭环检查。它会：
 
-- 严格解码所有已跟踪文本，拒绝 BOM、非法 UTF-8、替换字符和已知乱码片段；
+- 严格解码所有已跟踪文本，强制执行逐文件 BOM 策略，并拒绝非法 UTF-8、替换字符和已知乱码片段；
 - 检查中文路由词、四个 Coaching 标题和公式符号表字段是否仍然完整；
 - 核对 `dist/SHA256SUMS.txt`、当前发行 ZIP 与仓库核心文件的 SHA-256；
 - 在可用时，检查 `skill-creator` 的读写入口是否显式声明 UTF-8，再用默认 Python 运行 skill validator；
@@ -443,13 +446,13 @@ py -3 `
 `dist/SHA256SUMS.txt` 记录了核心文件与 ZIP 的 SHA-256。单独核对 ZIP 时可以运行：
 
 ```powershell
-Get-FileHash -LiteralPath ".\dist\Claim-0.1.1.zip" -Algorithm SHA256
+Get-FileHash -LiteralPath ".\dist\Claim-0.1.2.zip" -Algorithm SHA256
 ```
 
-版本 0.1.1 的 ZIP 期望值为：
+版本 0.1.2 的 ZIP 期望值为：
 
 ```text
-bc127d8af6588d541aaaeaf89fa4c570066c2f3d1627df186a05e025bb91e389
+58f2ada74cc719f704d5c6ca575c8461d04699d2df27a14d85da6e2ca9e6f69b
 ```
 
 ## 适用范围
@@ -483,7 +486,7 @@ Claim 不能替代：
 
 ## License
 
-内部版本 0.1.1 暂未附带开源许可证。缺少许可证时，公开可见状态不会自动授予复制、修改或再分发权利。正式公开发布前，应由项目所有者选择并加入明确许可证。
+内部版本 0.1.2 暂未附带开源许可证。缺少许可证时，公开可见状态不会自动授予复制、修改或再分发权利。正式公开发布前，应由项目所有者选择并加入明确许可证。
 
 ---
 

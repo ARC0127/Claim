@@ -38,16 +38,15 @@ function Read-StrictUtf8 {
     param([string]$Path)
 
     $bytes = [System.IO.File]::ReadAllBytes($Path)
-    if (
+    $hasBom = (
         $bytes.Length -ge 3 -and
         $bytes[0] -eq 0xEF -and
         $bytes[1] -eq 0xBB -and
         $bytes[2] -eq 0xBF
-    ) {
-        throw "UTF-8 BOM is not allowed"
-    }
+    )
 
-    $text = $utf8Strict.GetString($bytes)
+    $offset = if ($hasBom) { 3 } else { 0 }
+    $text = $utf8Strict.GetString($bytes, $offset, $bytes.Length - $offset)
     if ($text.IndexOf([char]0xFFFD) -ge 0) {
         throw "replacement character U+FFFD is present"
     }
@@ -60,7 +59,24 @@ function Read-StrictUtf8 {
 
     return [pscustomobject]@{
         Bytes = $bytes
+        HasBom = $hasBom
         Text = $text
+    }
+}
+
+function Test-BomPolicy {
+    param(
+        [string]$RelativePath,
+        [bool]$HasBom
+    )
+
+    $normalizedPath = $RelativePath -replace "\\", "/"
+    $requiresBom = $normalizedPath -eq "claim/references/theory-coach.md"
+    if ($requiresBom -and -not $HasBom) {
+        throw "$normalizedPath must carry the UTF-8 BOM required for Windows PowerShell 5.1 compatibility"
+    }
+    if (-not $requiresBom -and $HasBom) {
+        throw "$normalizedPath must remain UTF-8 without BOM"
     }
 }
 
@@ -90,7 +106,10 @@ function Test-MojibakeMarkers {
         "6Y605oiU",
         "6Y+N54WO57Sh",
         "6Y2Z5qmA5Zm6",
-        "6ZCo5Yur5oOI5raU"
+        "6ZCo5Yur5oOI5raU",
+        "6ZeD6Ii17oaM",
+        "5aav4oCz57Sh6ZSb",
+        "5aar4oKs57ux7p2u57Sw"
     )
 
     foreach ($encoded in $badMarkerBase64) {
@@ -124,7 +143,10 @@ function Test-RequiredMarkers {
             "5L2g5Yia5omN6KGo6L6+5LqG5LuA5LmI",
             "5oiR5aaC5L2V5b2i5byP5YyW",
             "5b2T5YmN5pyA5aSn5q2n5LmJ",
-            "5LiA5Liq6ZyA6KaB5L2g5Lqy6Ieq5Zue562U55qE6Zeu6aKY"
+            "5LiA5Liq6ZyA6KaB5L2g5Lqy6Ieq5Zue562U55qE6Zeu6aKY",
+            "6Zi25q61IFN4IMK3IEdBVEUgT1BFTg==",
+            "5qih5byP77yaREVFUF9ESVZFIMK3IE5PIEFEVkFOQ0U=",
+            "5qOA57Si77yaRlJFU0hfTElURVJBVFVSRV9QQVNTIMK3IFBSSU9SIFNPVVJDRVMgVU5DT05GSVJNRUQ="
         )
     }
 
@@ -136,6 +158,24 @@ function Test-RequiredMarkers {
         $marker = ConvertFrom-Utf8Base64 $encoded
         if (-not $Text.Contains($marker)) {
             throw "$RelativePath is missing a required Chinese protocol marker"
+        }
+    }
+
+    $encodingContractMarkers = @(
+        "ENCODING_CONTRACT: UTF-8",
+        "POWERSHELL_READ: Get-Content -LiteralPath path -Encoding UTF8",
+        "MOJIBAKE_POLICY: FAIL_CLOSED_AND_REREAD",
+        "CANONICAL_PREFIX_CODEPOINTS: STAGE=U+9636,U+6BB5; MODE=U+6A21,U+5F0F,U+FF1A; SEARCH=U+68C0,U+7D22,U+FF1A; SEPARATOR=U+00B7"
+    )
+    if ($RelativePath -eq "claim/references/theory-coach.md") {
+        $encodingContractMarkers += 'PYTHON_READ: Path(path).read_text(encoding="utf-8-sig")'
+    }
+    else {
+        $encodingContractMarkers += 'PYTHON_READ: Path(path).read_text(encoding="utf-8")'
+    }
+    foreach ($marker in $encodingContractMarkers) {
+        if (-not $Text.Contains($marker)) {
+            throw "$RelativePath is missing the ASCII encoding contract marker: $marker"
         }
     }
 }
@@ -176,6 +216,7 @@ try {
         $fullPath = Join-Path $repoRoot $relativePath
         try {
             $record = Read-StrictUtf8 $fullPath
+            Test-BomPolicy -RelativePath $relativePath -HasBom $record.HasBom
             Test-MojibakeMarkers -Label $relativePath -Text $record.Text
             Test-RequiredMarkers -RelativePath ($relativePath -replace "\\", "/") -Text $record.Text
         }
@@ -185,7 +226,7 @@ try {
     }
 
     if ($failureCount -eq 0) {
-        Write-Pass "$($textFiles.Count) tracked text files are strict UTF-8 without BOM"
+        Write-Pass "$($textFiles.Count) tracked text files satisfy the strict UTF-8 and BOM policy"
         Write-Pass "required Chinese protocol markers are intact"
     }
 
@@ -241,15 +282,15 @@ try {
 
                 try {
                     $entryBytes = Get-ZipEntryBytes $entry
-                    $entryText = $utf8Strict.GetString($entryBytes)
-                    if (
+                    $entryHasBom = (
                         $entryBytes.Length -ge 3 -and
                         $entryBytes[0] -eq 0xEF -and
                         $entryBytes[1] -eq 0xBB -and
                         $entryBytes[2] -eq 0xBF
-                    ) {
-                        throw "UTF-8 BOM is not allowed"
-                    }
+                    )
+                    $entryOffset = if ($entryHasBom) { 3 } else { 0 }
+                    $entryText = $utf8Strict.GetString($entryBytes, $entryOffset, $entryBytes.Length - $entryOffset)
+                    Test-BomPolicy -RelativePath $entryName -HasBom $entryHasBom
                     if ($entryText.IndexOf([char]0xFFFD) -ge 0) {
                         throw "replacement character U+FFFD is present"
                     }
@@ -370,6 +411,7 @@ try {
 
             try {
                 $installedRecord = Read-StrictUtf8 $installedFilePath
+                Test-BomPolicy -RelativePath $coreFile -HasBom $installedRecord.HasBom
                 Test-MojibakeMarkers -Label "installed/$insideSkillPath" -Text $installedRecord.Text
                 Test-RequiredMarkers -RelativePath $coreFile -Text $installedRecord.Text
                 if (

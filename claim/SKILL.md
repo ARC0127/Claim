@@ -5,6 +5,18 @@ description: One entry point for research-claim coaching, complete theory audits
 
 # Claim
 
+## Encoding preflight
+
+ENCODING_CONTRACT: UTF-8
+POWERSHELL_READ: Get-Content -LiteralPath path -Encoding UTF8
+PYTHON_READ: Path(path).read_text(encoding="utf-8")
+MOJIBAKE_POLICY: FAIL_CLOSED_AND_REREAD
+CANONICAL_PREFIX_CODEPOINTS: STAGE=U+9636,U+6BB5; MODE=U+6A21,U+5F0F,U+FF1A; SEARCH=U+68C0,U+7D22,U+FF1A; SEPARATOR=U+00B7
+
+Treat every file in this skill as UTF-8. Keep `SKILL.md` and structured metadata without BOM; `references/theory-coach.md` carries a UTF-8 BOM so Windows PowerShell 5.1 can auto-detect it. Never rely on a locale-default decoder. On Windows PowerShell, still pass `-Encoding UTF8`; in Python, always pass `encoding="utf-8-sig"` when a referenced Markdown file may carry the compatibility BOM.
+
+Before emitting any canonical coaching heading or status line, verify that the decoded source contains no `U+FFFD` replacement character and no character in the private-use range `U+E000-U+F8FF`. Verify the stage, mode, search, and separator code points against `CANONICAL_PREFIX_CODEPOINTS`. If any check fails, do not copy, paraphrase, or emit the damaged text. Re-read the source explicitly as UTF-8 and rebuild the response. Previously cached or quoted mojibake is never an authoritative template.
+
 Use this skill as the single user-facing entry point. Route by the decision the user wants, not by isolated keywords.
 
 ## Route
@@ -35,7 +47,7 @@ Use this skill as the single user-facing entry point. Route by the decision the 
 - Never switch from coaching to audit because context appears sufficient. Switch only when the user explicitly exits coaching or passes its archival gate.
 - Treat completion of the current claim and evidence of learned transfer as different statuses. Archival may proceed with `TRANSFER_UNTESTED`, but never call the coaching successful without the required transfer evidence.
 
-For coaching, read `references/theory-coach.md` completely before responding and let it control every turn. Treat its canonical four-heading template, status-line grammar, and precedence rules as literal output requirements. Do not attach a secondary skill during coaching stages S1-S6.
+For coaching, apply the encoding preflight and then read `references/theory-coach.md` completely before responding. Let it control every turn. Treat its canonical four-heading template, status-line grammar, and precedence rules as literal output requirements. Do not attach a secondary skill during coaching stages S1-S6.
 
 ## Global formula clarity contract
 
