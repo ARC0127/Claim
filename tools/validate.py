@@ -17,11 +17,13 @@ BOM = b"\xef\xbb\xbf"
 COACH = "references/theory-coach.md"
 REQUIRED = {"SKILL.md", "agents/openai.yaml", COACH,
             "references/obligation-feedback.md", "references/claim-review.md",
-            "references/claim-record.md"}
+            "references/claim-record.md", "references/formal-proof.md",
+            "references/local-zyr.md", "scripts/claim.py", "VERSION",
+            "assets/proof-demo/ClaimDemo.lean"}
 HEADINGS = ("你刚才表达了什么", "我如何形式化", "当前最大歧义", "一个需要你亲自回答的问题")
 STATUS = ("阶段 Sx · GATE OPEN", "模式：DEEP_DIVE · NO ADVANCE",
           "检索：FRESH_LITERATURE_PASS · PRIOR SOURCES UNCONFIRMED")
-TEXT = {".md", ".yaml", ".yml", ".json", ".txt", ".py", ".ps1", ".svg", ".html", ".css"}
+TEXT = {".md", ".yaml", ".yml", ".json", ".txt", ".py", ".ps1", ".svg", ".html", ".css", ".lean"}
 
 def require(condition, message):
     if not condition:
@@ -84,6 +86,7 @@ def check_repo(root, installed=None):
     manifest = json.loads(read_text(root / "manifest.json"))
     version = read_version(root)
     require(manifest["internal_version"] == version, "Manifest/VERSION mismatch")
+    require(read_version(root / "claim") == version, "Installed-package version differs")
     require(manifest["archive"] == f"dist/Claim-{version}.zip", "Archive version mismatch")
     require(manifest["entrypoint"] == "claim/SKILL.md" and manifest["archive_layout"] == "claim/", "Wrong package entry/layout")
     core = manifest["core_files"]

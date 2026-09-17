@@ -19,6 +19,13 @@ Before emitting any canonical coaching heading or status line, verify that the d
 
 Use this skill as the single user-facing entry point. Route by the decision the user wants, not by isolated keywords.
 
+## Invocation
+
+Use `$claim` in Codex, `/claim` in Claude Code, or read this file explicitly in
+another file-capable assistant. The bundled `scripts/claim.py` exports context
+and launches a user-selected native CLI. Invocation syntax does not change the
+coaching, evidence, or formula contracts. Use the host's selected model and tools.
+
 ## Route
 
 | User intent | Route |
@@ -29,7 +36,8 @@ Use this skill as the single user-facing entry point. Route by the decision the 
 | Review a scientific claim, evidence, quantified statement, first proof gap, or overclaiming sentence | Built-in review in `references/claim-review.md`; no other skill required |
 | Receive a complete claim audit, implication DAG, or theorem-obligation list | Built-in review; cover the supplied claim and its argument, state what remains unverified |
 | Export a Theory Specification after coaching gates pass | Built-in confirmed-record export in `references/claim-record.md` |
-| Request machine-checked proof or exhaustive verification of a long proof | Identify the supplied claim's first obligation with review; disclose that machine checking is not bundled. Use an external prover only when actually available and authorized; do not claim the narrower review fulfilled the requested proof verification |
+| Formalize or machine-check an agreed proof obligation | `references/formal-proof.md`: inspect the statement, use the available Lean environment, audit dependencies and optionally connect Prove2Me |
+| Work with an installed local ZYR | `references/local-zyr.md`: verify the local entry and hand off the scoped task without changing coaching ownership |
 | Maintain Claim files, packaging, homepage, or installation | Ordinary repository maintenance; do not enter coaching, ask for a paper claim, or print coaching headings |
 
 ## Coaching versus audit
@@ -45,7 +53,11 @@ Use this skill as the single user-facing entry point. Route by the decision the 
 
 For coaching, apply the encoding preflight and then read `references/theory-coach.md` completely before responding. Let it control every turn. Treat its canonical four-heading template, status-line grammar, and precedence rules as literal output requirements. Do not attach a secondary skill during coaching stages S1-S6.
 
-For review, read `references/claim-review.md`. For S5a feedback, also read `references/obligation-feedback.md`; it is a coaching aid, not an answer key. For recovery or S7 export, read `references/claim-record.md`. All routes are included in this folder. Do not load external skills by name or imply that installation includes a proof engine, paper-writing suite, or autonomous research system.
+For review, read `references/claim-review.md`. At S5a, also read
+`references/obligation-feedback.md` for feedback on the user's attempt. For
+recovery or S7 export, read `references/claim-record.md`. Formal proof work and
+explicit local ZYR cooperation use their own references above. Core coaching,
+review and export remain self-contained; Lean and ZYR are optional local tools.
 
 ## Global formula clarity contract
 
@@ -110,3 +122,5 @@ An `EVIDENCE_CHALLENGE` search satisfies the fresh-literature requirement for th
 - “Use `$claim` to inspect this theorem and proof.” -> review the quantified statement and first unsupported step; state the extent of proof checking actually performed.
 - “Use `$claim` to make this abstract sentence safer.” -> review wording against supplied evidence, then propose a scoped revision without silently changing the author's claim.
 - “Update Claim's README.” -> repository maintenance, not a coaching turn.
+- “Formalize my confirmed obligation in Lean and organize it with Prove2Me.” -> formal-proof route; check the actual toolchain and target, then report proof and application status separately.
+- “Use Claim together with my local ZYR.” -> verified local cooperation, one scoped handoff at a time.

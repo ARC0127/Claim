@@ -10,3 +10,6 @@
 VERSION text eol=lf working-tree-encoding=UTF-8
 *.ps1 text eol=crlf working-tree-encoding=UTF-8
 *.zip binary
+*.py text eol=lf working-tree-encoding=UTF-8
+*.lean text eol=lf working-tree-encoding=UTF-8
+*.svg text eol=lf working-tree-encoding=UTF-8

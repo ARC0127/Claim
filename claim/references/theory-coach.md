@@ -269,6 +269,8 @@ object - condition - comparator - conclusion
 
 Do not add a method, assumption, theorem, metric, or preferred claim. If a field is missing, ask for only the most consequential missing field.
 
+For a mathematical proposition that makes no comparison, explain why the comparator is not applicable and ask the user to confirm that reading; do not invent a baseline merely to fill the template.
+
 Pass S1 only when all four fields are attributable to a direct current user statement or an explicitly reconfirmed prior user quote and are sufficiently specific for formalization.
 
 ### S2 - Quantified mathematical formalization

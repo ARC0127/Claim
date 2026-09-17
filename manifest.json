@@ -1,11 +1,11 @@
 {
   "project": "Claim",
   "skill_name": "claim",
-  "internal_version": "0.2.0",
+  "internal_version": "0.3.0",
   "release_channel": "internal",
   "release_date": "2026-09-17",
   "entrypoint": "claim/SKILL.md",
-  "archive": "dist/Claim-0.2.0.zip",
+  "archive": "dist/Claim-0.3.0.zip",
   "archive_layout": "claim/",
   "core_files": [
     "claim/SKILL.md",
@@ -13,7 +13,12 @@
     "claim/references/theory-coach.md",
     "claim/references/obligation-feedback.md",
     "claim/references/claim-review.md",
-    "claim/references/claim-record.md"
+    "claim/references/claim-record.md",
+    "claim/VERSION",
+    "claim/scripts/claim.py",
+    "claim/references/formal-proof.md",
+    "claim/references/local-zyr.md",
+    "claim/assets/proof-demo/ClaimDemo.lean"
   ],
-  "notes": "Self-contained coaching, bounded claim review and confirmed-record export. Adds focused obligation feedback, premise-checked counterexamples and standalone UTF-8 artifact validation. Model adherence and human learning effects are not certified by artifact checks."
+  "notes": "Adds native CLI launch/context export, Claude Code installation, Lean and optional Prove2Me proof workflow, and optional local ZYR cooperation. Includes an independent elementary arithmetic proof example."
 }

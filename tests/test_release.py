@@ -25,7 +25,7 @@ class ReleaseTests(unittest.TestCase):
             shutil.copy2(ROOT / name, self.root / name)
 
     def test_clean_repo_and_isolated_skill(self):
-        self.assertEqual(validate.check_repo(self.root), "0.2.0")
+        self.assertEqual(validate.check_repo(self.root), "0.3.0")
         self.assertEqual(validate.check_skill(self.root / "claim"), validate.REQUIRED)
 
     def test_invalid_utf8_rejected(self):
