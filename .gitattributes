@@ -1,4 +1,5 @@
-# Repository text is UTF-8 without BOM. Git stores normalized LF content.
+# UTF-8 text; theory-coach.md has a UTF-8 BOM for Windows PowerShell 5.1.
+# Other text has no BOM. Git stores normalized LF content.
 * text=auto
 .gitattributes text eol=lf
 *.md text eol=lf working-tree-encoding=UTF-8

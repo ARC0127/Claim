@@ -1,6 +1,8 @@
 # Temporary packaging and validation directories
 .tmp/
 tmp/
+.codex/
+__pycache__/
 
 # Editor and OS files
 .DS_Store

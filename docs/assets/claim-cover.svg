@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+  <title id="title">Claim — From research claims to proof obligations</title>
+  <desc id="desc">A research claim meets a counterexample. A researcher writes the missing proof obligation.</desc>
+  <rect width="1200" height="460" rx="24" fill="#f5f2eb"/>
+  <path d="M40 40H1160M40 420H1160" stroke="#d4d5cb"/>
+  <circle cx="65" cy="84" r="11" fill="#254e48"/>
+  <text x="90" y="92" fill="#254e48" font-family="Arial,sans-serif" font-size="23" letter-spacing="3">CLAIM</text>
+  <text x="52" y="172" fill="#182e2b" font-family="Georgia,serif" font-size="57">What must be proved?</text>
+  <text x="55" y="217" fill="#51645f" font-family="Arial,sans-serif" font-size="24">From research claims to proof obligations.</text>
+  <rect x="54" y="267" width="322" height="108" rx="12" fill="#ffffff" stroke="#d4d5cb"/>
+  <text x="76" y="300" fill="#6c7b76" font-family="Arial,sans-serif" font-size="15" letter-spacing="2">01 / STATE</text>
+  <text x="76" y="341" fill="#182e2b" font-family="Georgia,serif" font-size="30">Your claim</text>
+  <path d="M388 320H418l-7-7m7 7-7 7" fill="none" stroke="#7b8983" stroke-width="2"/>
+  <rect x="433" y="267" width="298" height="108" rx="12" fill="#eee3d3"/>
+  <text x="455" y="300" fill="#856c4b" font-family="Arial,sans-serif" font-size="15" letter-spacing="2">02 / CHALLENGE</text>
+  <text x="455" y="341" fill="#604a31" font-family="Georgia,serif" font-size="30">The missing bridge</text>
+  <path d="M743 320H773l-7-7m7 7-7 7" fill="none" stroke="#7b8983" stroke-width="2"/>
+  <rect x="788" y="267" width="356" height="108" rx="12" fill="#254e48"/>
+  <text x="810" y="300" fill="#c0d5c9" font-family="Arial,sans-serif" font-size="15" letter-spacing="2">03 / FORMULATE</text>
+  <text x="810" y="341" fill="#ffffff" font-family="Georgia,serif" font-size="30">Your proof obligation</text>
+  <text x="1145" y="92" fill="#51645f" text-anchor="end" font-family="Arial,sans-serif" font-size="17">ONE DECISION AT A TIME</text>
+</svg>

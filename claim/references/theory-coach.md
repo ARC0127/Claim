@@ -22,7 +22,7 @@ the theorem-obligation attempt, the theory-category attempt, and the failure rul
 The AI supplies scaffolding, counterexamples, consistency checks, and feedback.
 ```
 
-Do not start `theory-claim-audit` during coaching. Use it only after the user explicitly exits coaching or passes all coaching gates and requests archival output.
+Do not start the built-in claim review during coaching. Use review only after the user explicitly exits coaching. Passing all coaching gates and requesting archival output instead loads `claim-record.md`, which exports confirmed decisions without a new audit.
 
 ## Per-turn contract
 
@@ -287,13 +287,19 @@ Pass S2 only after explicit user confirmation. If any part is rejected, revise S
 
 Construct one minimal counterexample to the confirmed mathematical claim. Preserve the user's premises and vary only what is needed to break the conclusion.
 
+Before showing it, check each confirmed premise against the candidate and identify the exact conclusion it violates. A candidate violating a premise is an invalid counterexample. A finite empirical loss or a failed proof search is not by itself a mathematical counterexample to a probabilistic guarantee. Distinguish `VALID_COUNTEREXAMPLE`, `INVALID_COUNTEREXAMPLE`, and `NO_COUNTEREXAMPLE_FOUND`; the last is not proof of truth.
+
 Do not propose a repair, exclusion, assumption, theorem, method, or experiment. Ask one decision per turn: whether the counterexample is in scope, whether the user is willing to exclude it, and what scientific scope that exclusion sacrifices.
 
 Pass S3 only after all three judgments come from the user. If the counterexample is out of scope, require the user to identify the already-intended boundary; do not invent it.
 
+If no valid counterexample is found within the actual search, disclose the attempted scope and uncertainty. Do not fabricate a failure or add assumptions to manufacture one. The user must decide whether to continue conditionally, narrow the claim, or investigate further. Conditional continuation can pass the scope-review gate only after the user states the retained scope and acknowledges that absence of a found counterexample proves nothing; record no exclusion and no claimed scope sacrifice. This changes workflow status, not mathematical validity.
+
 ### S4 - User-selected assumptions
 
 Require the user to propose the minimal condition that they think would block the current counterexample. Do not show candidate assumptions, menus, or preferred repairs before this attempt.
+
+When S3 found no valid counterexample, ask the user to inspect the already-stated premises and whether any additional restriction is justified. An explicit user attempt concluding “no additional condition is justified” is valid work; record the rationale and unresolved necessity rather than forcing an extra assumption. Never equate absence of a found counterexample with sufficient premises.
 
 Use this progressive hint ladder. Give at most one level per turn and keep S4 `OPEN` throughout the ladder:
 
@@ -312,6 +318,8 @@ For each user proposal, check only:
 - whether it merely restates the desired conclusion;
 - what scientific scope or generality it sacrifices;
 - whether it is observable or checkable in the intended setting.
+
+Keep these three judgments separate: blocks this counterexample; suffices for the whole claim; is necessary for the whole claim. Demonstrating the first does not establish the other two. Explain any scope cost using the actual excluded objects, not a generic “less general” label.
 
 If the proposal fails, identify the single largest defect and ask the user to revise it. Do not replace it with an AI-written assumption.
 
@@ -350,6 +358,8 @@ Require the user to propose, in natural language, the result that would make `X 
 - whether an oracle, asymptotic, or finite-sample conclusion is required.
 
 Check whether the proposed result actually closes the arrow. If it does not, identify only the largest missing quantifier, object, comparator, or error term and ask the user to revise it. Do not rewrite the entire obligation for them.
+
+Read `obligation-feedback.md` for the concrete comparison between the claim's required conclusion and the user's proposed bridge. Preserve the user's wording; explain why the single largest mismatch prevents the conclusion. Requirements that do not apply, such as sampling probability in an exact deterministic claim, receive an explicit reason instead of an invented parameter. A theorem name or category alone is not an obligation.
 
 Pass S5a only after the user has authored one theorem obligation whose input-output form and quantifiers plausibly close the first bad arrow.
 
@@ -391,6 +401,8 @@ Require the user to state what theoretical counterexample or experimental result
 
 Check only whether it is observable, claim-specific, reachable, non-circular, and capable of changing the verdict. If not, identify the single largest defect and ask for revision.
 
+For a deterministic universal claim, one premise-satisfying counterexample may refute it. For a high-probability or average claim, one bad sample need not refute it; the user's failure rule must address the declared probability or averaging semantics. Distinguish abandoning a research route from proving its mathematical claim false.
+
 Pass S6 only when the user has stated a genuinely falsifying rule.
 
 ### TRANSFER - Adjacent-claim transfer check
@@ -422,7 +434,7 @@ Allow archival only when S1-S6, including S5a and S5b, are all `PASSED` and the 
 
 Treat confirmed dialogue decisions as immutable input. Do not add a stronger claim, accepted assumption, scope exclusion, theorem obligation, or failure rule. Mark anything unconfirmed `UNKNOWN`.
 
-Announce the transition out of coaching, then load `theory-claim-audit` and its required protocol completely. Use only the confirmed current-claim record for archival; exclude the transfer exercise. The four-section coaching limit ends only after this explicit transition.
+Announce the transition out of coaching, then read `claim-record.md` and use its confirmed-record export. No other skill is required. Use only the confirmed current-claim record for archival; exclude the transfer exercise. The four-section coaching limit ends only after this explicit transition.
 
 ## Versioned rollback and gate invalidation
 
@@ -478,6 +490,8 @@ Do not declare coaching complete because a polished artifact exists. Require the
 - a theorem obligation with input, output, guarantee mode, controlled error, and finite-sample status;
 - a free-form explanation of why the bad arrow fails and an open-category mapping attempt;
 - a binding falsification or stopping rule.
+
+When no valid counterexample was found, retain the user's explicit conditional-continuation judgment and any “no additional condition justified” rationale in place of an invented exclusion or assumption. An `OPEN` scientific question can remain `UNKNOWN` in a completed coaching record.
 
 If the AI chose any of these without a user decision, return to that stage. Label S1-S6 completion only as `CURRENT_CLAIM_COACHED`.
 

@@ -1,16 +1,19 @@
 {
   "project": "Claim",
   "skill_name": "claim",
-  "internal_version": "0.1.2",
+  "internal_version": "0.2.0",
   "release_channel": "internal",
-  "release_date": "2026-08-10",
+  "release_date": "2026-09-17",
   "entrypoint": "claim/SKILL.md",
-  "archive": "dist/Claim-0.1.2.zip",
+  "archive": "dist/Claim-0.2.0.zip",
   "archive_layout": "claim/",
   "core_files": [
     "claim/SKILL.md",
     "claim/agents/openai.yaml",
-    "claim/references/theory-coach.md"
+    "claim/references/theory-coach.md",
+    "claim/references/obligation-feedback.md",
+    "claim/references/claim-review.md",
+    "claim/references/claim-record.md"
   ],
-  "notes": "Adds a fail-closed ASCII UTF-8 preflight for Claim reference reads and canonical coaching status output. Optional audit and proof routes require the downstream skills named in README.md."
+  "notes": "Self-contained coaching, bounded claim review and confirmed-record export. Adds focused obligation feedback, premise-checked counterexamples and standalone UTF-8 artifact validation. Model adherence and human learning effects are not certified by artifact checks."
 }
