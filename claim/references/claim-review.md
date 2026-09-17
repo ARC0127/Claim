@@ -45,6 +45,6 @@ For a sentence rewrite, a short proposed sentence plus the changed scope and evi
 Review is a language-model-assisted inspection, not a proof-assistant certificate or a completed systematic review. Do not claim machine verification, execution, exhaustive proof coverage or source access that did not happen. If the requested deliverable needs an unavailable external prover or missing experiment, complete the inspectable part and identify the remaining work rather than relabeling it complete.
 
 For an explicit Lean or Prove2Me request, continue with `formal-proof.md` after
-the target is clear. For requested local ZYR cooperation, use `local-zyr.md`.
+the target is clear. For a requested local-tool handoff, use `local-tools.md`.
 
 Switching out of coaching requires the user's explicit choice. Existing gate decisions remain unchanged unless the user revises them. A review proposal is not an independent student answer and does not retroactively pass a coaching gate. S7 export instead follows `claim-record.md` and introduces no new review conclusions.

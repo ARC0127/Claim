@@ -17,8 +17,8 @@
     "claim/VERSION",
     "claim/scripts/claim.py",
     "claim/references/formal-proof.md",
-    "claim/references/local-zyr.md",
+    "claim/references/local-tools.md",
     "claim/assets/proof-demo/ClaimDemo.lean"
   ],
-  "notes": "Adds native CLI launch/context export, Claude Code installation, Lean and optional Prove2Me proof workflow, and optional local ZYR cooperation. Includes an independent elementary arithmetic proof example."
+  "notes": "Adds native CLI launch/context export, Claude Code installation, Lean and optional Prove2Me proof workflow, and user-selected local tool handoffs. Includes an independent elementary arithmetic proof example."
 }

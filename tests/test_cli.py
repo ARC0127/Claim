@@ -72,12 +72,12 @@ class CLITests(unittest.TestCase):
             self.assertEqual(cli.main(["run", "--client", "claude", "--request", "test"]), 7)
             self.assertFalse(run.call_args.kwargs["shell"])
 
-    def test_optional_zyr_presence_not_execution(self):
+    def test_optional_companion_presence_not_execution(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder)
-            self.assertEqual(cli.doctor(path)["zyr_status"], "NOT_FOUND_OPTIONAL")
+            self.assertEqual(cli.doctor(path)["companion_status"], "NOT_FOUND_OPTIONAL")
             (path / "SKILL.md").write_text("test", encoding="utf-8")
-            self.assertEqual(cli.doctor(path)["zyr_status"], "ENTRY_PRESENT_NOT_EXECUTED")
+            self.assertEqual(cli.doctor(path)["companion_status"], "ENTRY_PRESENT_NOT_EXECUTED")
 
 if __name__ == "__main__":
     unittest.main()

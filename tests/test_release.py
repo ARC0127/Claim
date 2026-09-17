@@ -21,7 +21,7 @@ class ReleaseTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         for name in ("claim", "docs", "dist"):
             shutil.copytree(ROOT / name, self.root / name)
-        for name in ("README.md", "VERSION", "manifest.json", ".gitattributes", ".gitignore"):
+        for name in ("README.md", "README.zh-CN.md", "VERSION", "manifest.json", ".gitattributes", ".gitignore"):
             shutil.copy2(ROOT / name, self.root / name)
 
     def test_clean_repo_and_isolated_skill(self):
@@ -56,7 +56,7 @@ class ReleaseTests(unittest.TestCase):
 
     def test_external_skill_route_rejected(self):
         target = self.root / "claim/SKILL.md"
-        target.write_bytes(target.read_bytes() + b"\nLoad zyr-proof-engine now.\n")
+        target.write_bytes(target.read_bytes() + b"\nLoad D:/private/skills/proof-helper/SKILL.md.\n")
         with self.assertRaisesRegex(ValueError, "External skill"):
             validate.check_skill(self.root / "claim")
 

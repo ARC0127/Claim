@@ -82,20 +82,14 @@ python /path/to/skills/claim/scripts/claim.py --version
 
 维护者可用仓库的 `tools/validate.py --installed /path/to/skills/claim` 比较完整文件集和字节。客户端已经读入的旧内容不会被磁盘更新追溯修改；新会话应重新读取入口。
 
-## 与本地 ZYR 协作
+## 可选本地工具交接
 
-先检查实际安装：
-
-```bash
-python claim/scripts/claim.py doctor --zyr /path/to/skills/zip-your-research
-```
-
-`ENTRY_PRESENT_NOT_EXECUTED` 表示入口文件存在，不表示已经运行 ZYR。协作时，助手读取实际 ZYR 入口，交接当前主张版本、已确认条件、证明义务和剩余任务。Claim 的[本地协作协议](../claim/references/local-zyr.md)定义了交接字段。
-
-本地 ZYR 1.8.2 的路由器支持在确认 Claim 可用后使用 `--claim-available`。从实际 ZYR 根目录运行：
+显式指定要检查的本地 skill 目录：
 
 ```bash
-python zyr.py route "逐轮训练我判断这条 claim 需要什么定理" --claim-available --json
+python claim/scripts/claim.py doctor --companion /path/to/selected/skill
 ```
 
-这个命令给出路由，不会自行执行 Claim。若本地 ZYR 版本不同，先查看其 `route --help`，以实际支持的接口为准。更新 Claim 不覆盖 ZYR 的文件或版本。
+`ENTRY_PRESENT_NOT_EXECUTED` 只表示入口文件存在，尚未执行。助手应按用户请求读取该入口，交接当前主张版本、已确认条件、证明义务和剩余任务。未指定工具时不自动查找个人安装。
+
+[本地交接协议](../claim/references/local-tools.md)保留辅导阶段的用户决定权，不预设其他工具的品牌、能力或内部结构。

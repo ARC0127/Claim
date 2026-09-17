@@ -54,18 +54,14 @@ def launch_plan(client, mode, request):
         command += ["--search"]
     return command + ["--add-dir", str(SKILL), "--", directive]
 
-def doctor(zyr=None):
+def doctor(companion=None):
     info = {"claim_version": version(), "skill": str(SKILL),
             "clients": {name: shutil.which(name) for name in ("claude", "codex")},
             "lean_on_path": shutil.which("lean"), "lake_on_path": shutil.which("lake"),
             "network_and_auth": "NOT_TESTED"}
-    candidate = zyr
-    if candidate is None:
-        configured = Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex"))) / "skills/zip-your-research"
-        if (configured / "SKILL.md").is_file():
-            candidate = configured
-    info["zyr_entry"] = str(candidate / "SKILL.md") if candidate and (candidate / "SKILL.md").is_file() else None
-    info["zyr_status"] = "ENTRY_PRESENT_NOT_EXECUTED" if info["zyr_entry"] else "NOT_FOUND_OPTIONAL"
+    candidate = companion
+    info["companion_entry"] = str(candidate / "SKILL.md") if candidate and (candidate / "SKILL.md").is_file() else None
+    info["companion_status"] = "ENTRY_PRESENT_NOT_EXECUTED" if info["companion_entry"] else "NOT_FOUND_OPTIONAL"
     return info
 
 def main(argv=None):
@@ -73,7 +69,7 @@ def main(argv=None):
     parser.add_argument("--version", action="version", version="Claim " + version())
     commands = parser.add_subparsers(dest="command", required=True)
     check = commands.add_parser("doctor", help="Inspect local paths; no login or network requests")
-    check.add_argument("--zyr", type=Path, help="Optional installed zip-your-research skill directory")
+    check.add_argument("--companion", type=Path, help="Optional user-selected local skill directory")
     export = commands.add_parser("prompt", help="Export UTF-8 instructions for another client")
     launch = commands.add_parser("run", help="Start the selected native interactive client")
     for cmd in (export, launch):
@@ -85,7 +81,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "doctor":
-            print(json.dumps(doctor(args.zyr), ensure_ascii=False, indent=2))
+            print(json.dumps(doctor(args.companion), ensure_ascii=False, indent=2))
         elif args.command == "prompt":
             output = context(args.mode, args.request)
             if args.output:

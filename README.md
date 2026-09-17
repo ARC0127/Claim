@@ -1,130 +1,324 @@
 # Claim
 
-![Claim — 从研究主张走到必须证明的桥梁](docs/assets/claim-cover.svg)
+<p align="center"><strong>English</strong> · <a href="README.zh-CN.md">简体中文</a></p>
 
-## 把论文想说明的结论，写成真正需要证明的命题
+![Claim — Identify what your research claim actually requires you to prove](docs/assets/claim-cover.svg)
 
-你有一个研究想法，也能说明它为什么重要。但当论文需要理论支撑时，最难的问题往往是：**究竟缺少哪一步推理，应该证明什么？**
+## AI has written the complete answer. You may not have understood it at all.
 
-Claim 围绕这个问题组织科研对话。它帮助你明确主张、检查反例、权衡假设，并亲自写出定理义务——让论证成立所需要的证明目标。需要直接检查或形式化时，也可以进入 Review 或 Lean 证明路线。
+Give an idea to AI, and it can propose assumptions, suggest theorems, and produce something that looks like a complete proof. The argument sounds plausible. The discussion moves forward. Then someone asks why an assumption is necessary, whether a different quantifier changes the result, or what counterexample would defeat it. You realize you accepted the answer without developing the judgment behind it.
 
-[开始使用](#开始使用) · [看一个案例](docs/examples.md) · [CLI 与客户端](docs/cli.md) · [Lean + Prove2Me](docs/proof-workflow.md)
+**Research should involve more than AI doing the reasoning and you approving the result.** This matters especially in theoretical work. If AI chooses the claim, assumptions, and proof target, the text can become increasingly polished while your understanding stands still.
 
-**0.3.0 · internal** · 支持通用 CLI、Claude Code 和 Codex · 可与本地 ZYR 协作
+Claim keeps those decisions in the conversation for you to make. AI can explain concepts, search the literature, construct counterexamples, and check reasoning. You first state what you want to establish, decide which conditions to accept, and attempt a **proof obligation**: the precise result still needed to make the argument work. Claim is a skill for research conversations, designed to make AI assistance support understanding as well as produce answers.
 
-## Claim 帮你处理什么
+When you want a direct review or a formal proof, you can explicitly choose that route. Delivered work and independent practice are recorded separately.
 
-**前提成立，结论却没有接上。**
+**0.3.0 · internal** · General CLI, Claude Code, and Codex · Python 3.10+
 
-每个点分别成立的结论，未必能同时覆盖整个范围。Claim 找出尚未成立的推理，并检查证明目标是否包含结论真正要求的量词。
+[Quick start](#quick-start) · [Installation](#installation) · [Coaching](#how-coaching-works) · [Example](#a-concrete-feedback-example) · [Formal proofs](#continuing-to-a-formal-proof) · [FAQ](#faq)
 
-**反例出现，假设越加越多。**
+## What Claim helps you work through
 
-新增条件可能排除最重要的应用范围。Claim 先让你尝试提出最小条件，再检查它阻断了什么反例、牺牲了什么范围，以及是否只是重述结论。
+**The premise holds, but the conclusion does not follow yet.** A statement that holds separately at each point may not hold uniformly across a domain. Claim examines the missing inference and the quantifiers the conclusion actually requires.
 
-**知道定理名字，却写不出要证明哪一句。**
+**A counterexample leads to more and more assumptions.** An added condition may exclude the cases you care about most. You try to propose a minimal condition first. Claim then checks what it rules out, what scope it costs, and whether it merely restates the desired conclusion.
 
-“用集中不等式”还不是证明义务。Claim 对照你写出的输入、输出、量词和误差，解释最影响结论的一处缺项，再进入定理检索。
+**You know a theorem's name, but not the result you need.** “Use a concentration inequality” is not yet a proof obligation. Claim checks your proposed inputs, outputs, quantifiers, and error control before searching for applicable theory.
 
-## 看一次具体反馈
+**You have a proof, but may have proved a different claim.** Claim checks the formal statement, premises, dependencies, and application conditions. A mathematical theorem and an implementation satisfying its premises are different conclusions.
 
-> **学习者：**“每个点的函数值都趋于零，所以整个区间的误差最终可以同时任意小。”
->
-> **Claim：**“每个点分别等到误差足够小，不代表存在一个所有点共用的起点。你还缺少整个区间上的统一误差控制。”
->
-> **留给学习者的问题：**“要让所有点同时满足要求，你需要的结论与已有逐点结论有什么不同？”
+Choose Coaching to practice your judgment, or Review to receive a direct assessment. Having enough context is not permission to silently replace coaching with a complete theory written for you.
 
-[完整案例](docs/examples.md)使用与研究项目无关的经典实分析问题，练习量词顺序、移动反例、范围修订和统一误差义务，并附一道极限与求导的迁移题。正式辅导逐轮展开，不提前展示解答。
+## Quick start
 
-## 开始使用
+Download [Claim-0.3.0.zip](dist/Claim-0.3.0.zip) and keep the extracted `claim/` folder intact. Run the commands below from the repository root or the extracted directory containing that folder.
 
-下载 [Claim-0.3.0.zip](dist/Claim-0.3.0.zip)，解压后保留完整 `claim/` 文件夹。以下命令从仓库根目录或解压目录执行，需要 Python 3.10+。
-
-### 用 CLI 启动对话
-
-已经安装 Claude Code：
+With Claude Code installed:
 
 ```bash
-python claim/scripts/claim.py run --client claude --request "逐轮引导我分析论文主张，不要替我完成理论"
+python claim/scripts/claim.py run --client claude --request "Coach me through my research claim one step at a time. Do not complete the theory for me."
 ```
 
-使用 Codex CLI：
+With Codex CLI:
 
 ```bash
-python claim/scripts/claim.py run --client codex --request "逐轮引导我分析论文主张"
+python claim/scripts/claim.py run --client codex --request "Guide me through analyzing my research claim."
 ```
 
-启动器调用你选定的原生客户端，沿用客户端的模型、账户和交互权限。先看启动参数而不发起对话，可加 `--dry-run`。
+On Windows, use `py -3` if `python` is unavailable. On macOS / Linux, `python3` is also suitable. The selected client must be installed and discoverable on PATH; it manages its own account and authentication.
 
-### 安装到 Claude Code 或 Codex
+Once the conversation starts, explain in your own words what you want readers to believe. You do not need to know a theorem's name or prepare a complete theoretical framework first.
 
-| 客户端 | 安装位置 | 调用方式 |
+## Installation
+
+### Option 1: Run the CLI directly
+
+No personal skill installation is required. Keep the extracted folder and run:
+
+```bash
+python claim/scripts/claim.py --version
+python claim/scripts/claim.py doctor
+python claim/scripts/claim.py run --client claude --mode coach --request "My claim is..."
+```
+
+The launcher uses your selected client's model, account, and interactive permissions. It does not choose a model or bypass permission prompts. Each `run` starts a new session; continue the conversation in that session.
+
+### Option 2: Install as a client skill
+
+| Client | Personal location | Project location | Invoke |
+|---|---|---|---|
+| Claude Code | `~/.claude/skills/claim/` | `.claude/skills/claim/` | `/claim` |
+| Codex | `$CODEX_HOME/skills/claim/`; default `~/.codex/skills/claim/` | Follow the client's configuration | `$claim` |
+| Other assistants | A location where the assistant can read the complete folder | Follow the assistant's file interface | Explicitly request `claim/SKILL.md` |
+
+First-time Claude Code installation in Windows PowerShell:
+
+```powershell
+$claimSkillsRoot = Join-Path $env:USERPROFILE ".claude\skills"
+Expand-Archive -LiteralPath ".\Claim-0.3.0.zip" -DestinationPath $claimSkillsRoot
+```
+
+First-time Codex installation in Windows PowerShell:
+
+```powershell
+$claimSkillsRoot = if ($env:CODEX_HOME) {
+    Join-Path $env:CODEX_HOME "skills"
+} else {
+    Join-Path $env:USERPROFILE ".codex\skills"
+}
+Expand-Archive -LiteralPath ".\Claim-0.3.0.zip" -DestinationPath $claimSkillsRoot
+```
+
+macOS / Linux:
+
+```bash
+# Claude Code
+mkdir -p "$HOME/.claude/skills"
+unzip Claim-0.3.0.zip -d "$HOME/.claude/skills"
+
+# Codex
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+unzip Claim-0.3.0.zip -d "${CODEX_HOME:-$HOME/.codex}/skills"
+```
+
+These commands assume the downloaded ZIP is in your current directory. When installing from the repository, use `dist/Claim-0.3.0.zip`. You can also copy the complete `claim/` folder directly.
+
+For an existing installation, inspect personal changes and back up the old directory outside the client's skills directory. Replace the complete folder rather than mixing versions. Start a new session and reload the entrypoint afterward.
+
+### Option 3: Export context for another assistant
+
+```bash
+python claim/scripts/claim.py prompt --mode coach --request "My research claim is..." --output claim-context.md
+```
+
+The UTF-8 export includes the entrypoint and the selected mode's main protocols. It refuses to overwrite an existing file. Give the assistant access to the complete `claim/` folder for references needed later.
+
+Exporting text does not add search or execution tools to an assistant. Scientific source verification needs live web search; formal proof checking needs a working Lean environment.
+
+## CLI reference
+
+| Command or option | Purpose |
+|---|---|
+| `--version` | Show the packaged version |
+| `doctor` | Inspect client paths and local Lean/Lake availability; no login or network calls |
+| `run --client claude\|codex` | Launch the explicitly selected native client |
+| `--mode coach` | Default: step-by-step coaching |
+| `--mode review` | Direct claim and argument review |
+| `--mode proof` | An explicitly requested formal proof task |
+| `--request "..."` | Required request for launch or export |
+| `--dry-run` | Print launch arguments without starting a conversation |
+| `prompt --output filename` | Create a context file; omit output to print to the terminal |
+
+For example:
+
+```bash
+python claim/scripts/claim.py run --client claude --mode review --request "Review the claim and proof in this directory."
+python claim/scripts/claim.py run --client codex --mode proof --request "Read my confirmed obligation and check the formal statement first."
+python claim/scripts/claim.py run --client claude --request "Coach me step by step." --dry-run
+```
+
+Archiving and deep explanations are requests inside the conversation, not additional CLI modes. The launcher does not infer missing user confirmations from old files.
+
+## How coaching works
+
+Each turn advances one decision. You retain ownership of the claim, exclusions, assumptions, and failure rule. You also attempt the required conclusion before AI writes it for you.
+
+| Stage | Your judgment | Claim's help |
 |---|---|---|
-| Claude Code | `~/.claude/skills/claim/`，或项目的 `.claude/skills/claim/` | `/claim` |
-| Codex | `$CODEX_HOME/skills/claim/`；默认 `~/.codex/skills/claim/` | `$claim` |
-| 其他助手 | 保留完整文件夹，明确要求读取 `SKILL.md` | 使用助手自己的文件或上下文入口 |
+| S1 — Claim | What should the reader believe, and about which objects and domain? | Separate objects, conditions, comparator, and conclusion without adding a method |
+| S2 — Formalization | Does the mathematical statement still mean what you intended? | Make quantifiers and symbols explicit, then wait for confirmation |
+| S3 — Counterexample | Is it in scope, and would you exclude it? | Check premises and construct a counterexample without immediately repairing the claim |
+| S4 — Assumptions | Try a minimal condition; accept, reject, or leave it unknown | Check whether it blocks the counterexample, is circular, or narrows scope |
+| S5a — Proof obligation | Attempt the needed inputs, outputs, quantifiers, and error statement | Explain the single mismatch that most directly blocks the next inference |
+| S5b — Theory type | Explain why the inference fails, then try to classify it | Allow multiple categories, other, or unknown; then search for applicable tools |
+| S6 — Failure condition | What result would make you abandon this version of the claim? | Check that the proposed falsification matches the scope and quantifiers |
+| S7 — Archive | Explicitly request an export after the earlier decisions are confirmed | Export the confirmed version, preserving unproved obligations and unknowns |
 
-已有旧版时先备份，再替换完整文件夹。[各平台安装命令与升级说明 →](docs/cli.md)
+Do not invent a condition just to complete a stage. A pure mathematical statement may have no method comparator. A deterministic claim may involve no probability. If no counterexample is found, record the search scope and let the researcher decide whether to continue conditionally.
 
-### 只导出上下文
+### Fixed format and state
 
-```bash
-python claim/scripts/claim.py prompt --mode coach --request "我的论文主张是……" --output claim-context.md
-```
-
-将生成的 UTF-8 文件交给其他助手，并让它能够读取完整 `claim/` 文件夹。科学讨论需要网页检索；只有文本输入、没有联网工具的客户端可以阅读协议，但无法完成来源核验。
-
-## 按你需要的帮助选择模式
-
-| 目标 | 示例请求 | 工作方式 |
-|---|---|---|
-| 训练自己的理论判断 | “引导我，不要替我完成” | 每轮一个决定，假设和证明义务由你先尝试 |
-| 理解当前概念 | “详细解释这个区别，不推进阶段” | 当前阶段深入讲解，结束后仍由你判断 |
-| 直接检查论证 | “检查这条主张和证据” | 给出首个缺口、来源适用性和具体修改建议 |
-| 整理确认结果 | “将已确认的当前版本归档” | 导出主张、条件、证明目标和未决项 |
-| 写形式证明 | “把这条确认过的义务写成 Lean 证明” | 核对形式命题、证明依赖和实际编译结果 |
-
-Coaching、Review 和形式证明各有分工。需要换模式时明确说明，已有用户判断与版本记录继续保留。
-
-## 证明可以继续做到哪一步
+Stages S1–S6 use four fixed headings. The state block follows the first heading. An ordinary coaching turn looks like this:
 
 ```text
-确认的研究主张
-  → 明确的定理义务
-  → 自然语言论证与子引理
-  → Lean 形式化、编译与公理检查
-  → 可选 Prove2Me 依赖图与验证状态
-  → 回查定理条件与算法实现
+1. **你刚才表达了什么**
+
+`阶段 S1 · GATE OPEN`
+`模式：STANDARD`
+`检索：NO_NEW_SCIENTIFIC_CONTENT`
+
+2. **我如何形式化**
+
+3. **当前最大歧义**
+
+4. **一个需要你亲自回答的问题**
 ```
 
-Lean 检查形式命题的证明；Prove2Me 用来组织目标、分解义务并核对提交结果。Claim 负责解释这些结果与原论文主张的关系，区分“这个命题已证明”和“当前实现满足它的条件”。
+The headings mean: what you expressed; how it is formalized; the main ambiguity; and one question for you to answer. `OPEN` means the current decision is unresolved. Passing requires your explicit answer to meet the stage's conditions; “continue” does not supply a missing decision.
 
-包内提供一个[可运行的 Lean 小例子](claim/assets/proof-demo/ClaimDemo.lean)，证明两个偶数相加仍为偶数，展示形式化目标、见证构造和公理检查。[运行与证明链说明 →](docs/proof-workflow.md)
+Both READMEs describe the same protocol. Its fixed coaching headings, state prefixes, and formula-symbol explanations currently use Chinese. An English README does not turn the execution protocol into an English-only one. Maintenance requests, such as editing files or checking versions, do not use this teaching template.
 
-## 与本地 ZYR 配合
+### When you get stuck
 
-Claim 专注主张和证明义务；需要更广的研究、代码或写作工作时，可以把当前版本、已确认条件和剩余任务交给本地 ZYR。ZYR 也可以将理论辅导交回 Claim。
+- **“Explain this concept in depth, without advancing.”** `DEEP_DIVE` allows a fuller explanation of the current concept while leaving the stage unchanged.
+- **“I cannot work out how to restrict this counterexample.”** Hints first identify the freedom the counterexample exploits, then use a neutral example from an unrelated domain. A candidate condition comes only if you still cannot formulate one.
+- **“Check my proof target without giving me the answer.”** Claim explains what your target already covers and the missing component for you to revise.
+- **“This time, give me a direct review.”** Explicitly switch to Review. An AI-written answer is not recorded as your independent completion.
+
+A brief learning reflection can identify the judgment you just practiced and why it determines the kind of result needed next.
+
+## A concrete feedback example
+
+> **Learner:** “The function values tend to zero at every point, so eventually the error can be arbitrarily small everywhere at once.”
+>
+> **Claim:** “Each point having its own sufficiently late starting index does not establish one index that works for all points. You still need uniform error control over the interval.”
+>
+> **Question for the learner:** “How does the result you need for all points at once differ from the pointwise result you already have?”
+
+This classical real-analysis problem develops quantifier order, counterexamples that change with the index, supremum versus maximum, the cost of restricting a domain, and the formulation of a uniform error obligation.
+
+The [full advanced example](docs/examples.md) includes a mathematical check to open after answering and a transfer exercise on limits and differentiation. All examples are independent of specific research projects. Transfer answers are not given in advance or mixed into the original claim's archive.
+
+## Literature, objections, and formulas
+
+### Search again after each substantive change
+
+A new or revised claim, assumption, quantifier, definition, piece of evidence, or proof step requires a new web search focused on that change. Previous references become candidates; reopen them and check applicability before reusing them. The bibliography may stay the same, but the fresh check cannot be skipped.
+
+Confirming already displayed content, adjusting formatting, or exporting unchanged text is not new scientific content. If search fails, record what remains unverified instead of presenting model memory as a completed source check.
+
+### Ground objections in evidence
+
+When an idea appears to conflict materially with established results, Claim searches before objecting. It identifies the conflicting inference, the source statement, its conditions and domain, and a direct reference. References should give authors or issuing body, title, year, venue, DOI or stable link, and the precise proposition they support.
+
+The objection concerns an inspectable argument, not the researcher. Contrary evidence does not authorize AI to select a replacement claim or accept an assumption on your behalf.
+
+### Explain every symbol
+
+A formula needs nearby explanations of its variables, functions, sets, indices, quantifiers, and probability objects, including domains, units, and dependencies. Expand unfamiliar English abbreviations at first use. Missing definitions stay unknown; unexplained labels are not an adequate explanation.
+
+## Revision, archiving, and transfer
+
+You may revise any previously confirmed claim. Claim preserves the old text, reason for revision, and scope cost, then reopens affected downstream stages. A counterexample should not disappear through an undocumented change of statement.
+
+Your exact words from the current conversation can be reused. Recovery across conversations requires a verbatim user statement, labeled `UNCONFIRMED_PRIOR_USER_CLAIM` and shown for reconfirmation. An AI summary can help locate it but cannot replace that confirmation.
+
+After S1–S6, explicitly request a Theory Specification, argument dependency diagram, or proof-obligation list. The archive preserves confirmed decisions. An unproved target stays unproved, and formatting does not turn `UNKNOWN` into a fact.
+
+Transfer practice is separate: for a nearby but different claim, independently identify its objects, quantifiers, and first unsupported inference. Record whether hints were needed. Completing one claim together is not evidence of mastering the method.
+
+## Continuing to a formal proof
+
+Once the obligation is explicit, you can ask:
 
 ```text
-使用 Claim 帮我确认定理义务，再交给本地 ZYR 处理证明与实现对应关系。
-辅导阶段仍由我先作答。
+Formalize the confirmed obligation in Lean.
+First compare the informal and formal statements, then split the lemmas
+and inspect the actual compiler results.
 ```
 
-两者分别管理版本。Claim 独立安装即可使用；本地存在 ZYR 时按实际入口协作。[互通方式 →](docs/cli.md#与本地-zyr-协作)
+The workflow is:
 
-## 认真对待反对意见与研究者的判断
+```text
+Confirmed claim
+  → Precise proof obligation
+  → Informal argument and supporting lemmas
+  → Lean formalization in a pinned environment
+  → Compilation, exact statement, and transitive axiom check
+  → Optional Prove2Me targets, dependencies, and submission status
+  → Check that the application satisfies the theorem's premises
+```
 
-每次增加或修改实质性科学内容，Claim 都要求重新搜索相关文献。保留旧文献需要重新打开并核对适用性；提出反对意见时要给出原命题、条件、作者、年份和直接来源。
+Lean checks formal proofs. Prove2Me can organize targets, decompose obligations, and verify submissions. A dependency diagram should distinguish compiler-extracted logical dependencies, unproved decompositions, and implementation or experimental support.
 
-公式中的变量、集合、下标与概率对象必须解释清楚。改变对象、量词或假设时保留旧版本，并重做受影响的后续判断。详细解释、渐进提示和迁移练习都围绕同一目标：让你能说明自己为什么作出这个理论判断。
+A successful build is not the entire check: inspect whether the statement was weakened or relies on an unproved target or placeholder axiom. Waiting, accepted decomposition, and accepted proof are distinct platform states. Each applies only to the target actually checked.
 
-## 文档与验证
+The bundled [ClaimDemo.lean](claim/assets/proof-demo/ClaimDemo.lean) proves that adding two even natural numbers produces an even number. It is a minimal compilation check. Run it inside an existing Lean project environment:
 
-- [使用指南](docs/guide.md)：逐轮格式、假设提示、修订与迁移。
-- [CLI 与客户端](docs/cli.md)：安装、启动、上下文导出及本地 ZYR。
-- [形式证明路线](docs/proof-workflow.md)：Lean、Prove2Me 和实现对应关系。
-- [验证记录](docs/validation.md)：发行检查、CLI 测试、Lean 示例与尚未开展的教学评测。
-- [设计依据](docs/design-notes.md)：教学来源与具体设计选择。
-- [版本记录](docs/changelog.md) · [校验和](dist/SHA256SUMS.txt) · [入口协议](claim/SKILL.md)
+```bash
+lake env lean /path/to/claim/assets/proof-demo/ClaimDemo.lean
+```
 
-文件与程序验证、模型是否遵守教学协议、研究者是否学会，是三个分别评估的问题。当前已执行的检查和未测项目都列在验证记录中。
+The file prints the exact theorem and its axiom dependencies. Pin toolchain and dependency versions for actual research. The real-analysis teaching example has not been formalized in Lean; the arithmetic smoke test does not establish it. [Detailed proof workflow](docs/proof-workflow.md)
+
+## What has been checked
+
+| Layer | Recorded results |
+|---|---|
+| Files and release | UTF-8, fixed Chinese template, manifest, links, checksums, exact ZIP contents, and deterministic rebuilding pass |
+| Program regressions | 22 tests cover release and CLI behavior; mocked invocation is not a live model conversation |
+| Local installations | Codex and Claude Code copies checked for exact file sets and bytes |
+| Windows text | PowerShell 5.1 default and explicit reads compared, with incorrect decoding as a negative control |
+| Minimal formal proof | Compiled with Lean 4.33.1; the even-addition theorem has no axiom dependencies |
+| Model and learning outcomes | No live coaching-adherence evaluation or human learning study has been completed |
+
+This update retains version 0.3.0 and rebuilds the ZIP. Verify downloads against the [current SHA-256 checksums](dist/SHA256SUMS.txt). See the [validation record](docs/validation.md) for commands and scope.
+
+## FAQ
+
+**Do I need Codex?** No. Use Claude Code, the CLI, or another assistant that can read the protocol files. The host supplies the model, search, and execution tools; Claim supplies the conversation protocol.
+
+**Why does the ZIP not include the test suite?** The ZIP contains the installable `claim/` skill. The repository contains the full validation tools, tests, and documentation. Running the skill does not require the whole repository.
+
+**Why is the skill missing or still using an old format?** Check that the path is exactly `skills/claim/SKILL.md`, without an extra nested folder. After updating, start a new session and explicitly reload the entrypoint.
+
+**What should I do about garbled Chinese text?** Do not copy damaged headings from old messages. Read the file explicitly as UTF-8. The coaching reference carries a Windows-compatible BOM; Python can read it with `utf-8-sig`. Updating files cannot repair text already generated in historical messages.
+
+```powershell
+Get-Content -LiteralPath "actual/path/claim/SKILL.md" -Encoding UTF8
+```
+
+**What if search or Lean is unavailable?** Without search, scientific sources remain unverified. Without Lean, the assistant may prepare a formal target and run instructions, but must not claim compilation succeeded.
+
+**Can I ask AI to write the answer directly?** Yes: explicitly request Review or formal proof work. That delivery will not count as your independent completion of a coaching stage.
+
+## Repository and maintenance
+
+```text
+README.md / README.zh-CN.md  Complete English and Chinese entrypoints
+claim/                      Independently installable skill
+  SKILL.md                  Mode routing and shared rules
+  references/               Coaching, review, archive, and proof protocols
+  scripts/claim.py           CLI
+  assets/proof-demo/         Minimal Lean example
+docs/                       Focused guides and validation records
+tools/                      Validation and packaging
+tests/                      Regressions and Windows encoding checks
+dist/                       Installable ZIPs and checksums
+```
+
+Run maintenance checks from the repository root:
+
+```bash
+python -B tools/validate.py
+python -B -m unittest discover -s tests -v
+python -B tools/package.py --check
+python -B tools/validate.py --installed /path/to/skills/claim
+```
+
+Rebuild with `python -B tools/package.py --write`. Check sources first, then compare the ZIP and installed copies; a file's existence is not a completed verification.
+
+The focused guides below are currently in Chinese; both READMEs contain the complete getting-started instructions.
+
+[User guide](docs/guide.md) · [CLI details](docs/cli.md) · [Advanced example](docs/examples.md) · [Proof workflow](docs/proof-workflow.md) · [Design references](docs/design-notes.md) · [Validation](docs/validation.md) · [Changelog](docs/changelog.md)

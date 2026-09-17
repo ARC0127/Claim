@@ -18,7 +18,7 @@ COACH = "references/theory-coach.md"
 REQUIRED = {"SKILL.md", "agents/openai.yaml", COACH,
             "references/obligation-feedback.md", "references/claim-review.md",
             "references/claim-record.md", "references/formal-proof.md",
-            "references/local-zyr.md", "scripts/claim.py", "VERSION",
+            "references/local-tools.md", "scripts/claim.py", "VERSION",
             "assets/proof-demo/ClaimDemo.lean"}
 HEADINGS = ("你刚才表达了什么", "我如何形式化", "当前最大歧义", "一个需要你亲自回答的问题")
 STATUS = ("阶段 Sx · GATE OPEN", "模式：DEEP_DIVE · NO ADVANCE",
@@ -65,7 +65,7 @@ def check_skill(skill):
                 and "MOJIBAKE_POLICY: FAIL_CLOSED_AND_REREAD" in contents[rel], f"Encoding preflight missing: {rel}")
     require("$claim" in contents["agents/openai.yaml"], "UI prompt must invoke $claim")
     for rel, text in contents.items():
-        require(not re.search(r"zyr-[a-z0-9-]+|theory-claim-audit|F:[/\\]Archives|D:[/\\]codex", text, re.I),
+        require(not re.search(r"theory-claim-audit|(?<![A-Za-z])[A-Za-z]:[/\\]", text, re.I),
                 f"External skill or private local dependency in {rel}")
     return actual
 
@@ -92,7 +92,7 @@ def check_repo(root, installed=None):
     core = manifest["core_files"]
     require(len(core) == len(set(core)) and set(core) == {"claim/" + p for p in skill_files}, "Manifest core file set differs")
     require(version in read_text(root / "README.md"), "README does not name current version")
-    public = [root / p for p in ("README.md", "VERSION", "manifest.json", ".gitattributes", ".gitignore")]
+    public = [root / p for p in ("README.md", "README.zh-CN.md", "VERSION", "manifest.json", ".gitattributes", ".gitignore")]
     for folder in ("claim", "docs", "tools", "tests"):
         public += [p for p in (root / folder).rglob("*") if p.is_file() and "__pycache__" not in p.parts]
     for path in public:

@@ -37,7 +37,7 @@ coaching, evidence, or formula contracts. Use the host's selected model and tool
 | Receive a complete claim audit, implication DAG, or theorem-obligation list | Built-in review; cover the supplied claim and its argument, state what remains unverified |
 | Export a Theory Specification after coaching gates pass | Built-in confirmed-record export in `references/claim-record.md` |
 | Formalize or machine-check an agreed proof obligation | `references/formal-proof.md`: inspect the statement, use the available Lean environment, audit dependencies and optionally connect Prove2Me |
-| Work with an installed local ZYR | `references/local-zyr.md`: verify the local entry and hand off the scoped task without changing coaching ownership |
+| Hand off work to a user-selected local tool | `references/local-tools.md`: verify the local entry and hand off the scoped task without changing coaching ownership |
 | Maintain Claim files, packaging, homepage, or installation | Ordinary repository maintenance; do not enter coaching, ask for a paper claim, or print coaching headings |
 
 ## Coaching versus audit
@@ -56,8 +56,8 @@ For coaching, apply the encoding preflight and then read `references/theory-coac
 For review, read `references/claim-review.md`. At S5a, also read
 `references/obligation-feedback.md` for feedback on the user's attempt. For
 recovery or S7 export, read `references/claim-record.md`. Formal proof work and
-explicit local ZYR cooperation use their own references above. Core coaching,
-review and export remain self-contained; Lean and ZYR are optional local tools.
+explicit local-tool cooperation use their own references above. Core coaching,
+review and export remain self-contained; external tools remain optional.
 
 ## Global formula clarity contract
 
@@ -123,4 +123,4 @@ An `EVIDENCE_CHALLENGE` search satisfies the fresh-literature requirement for th
 - “Use `$claim` to make this abstract sentence safer.” -> review wording against supplied evidence, then propose a scoped revision without silently changing the author's claim.
 - “Update Claim's README.” -> repository maintenance, not a coaching turn.
 - “Formalize my confirmed obligation in Lean and organize it with Prove2Me.” -> formal-proof route; check the actual toolchain and target, then report proof and application status separately.
-- “Use Claim together with my local ZYR.” -> verified local cooperation, one scoped handoff at a time.
+- “Use Claim with another local tool I select.” -> verified local cooperation, one scoped handoff at a time.
